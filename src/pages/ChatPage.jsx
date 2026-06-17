@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import ChatView from '../views/ChatView'
 import '../styles/chat.css'
 import { setDocumentScroll } from '../utils/pageScroll'
+import { API_BASE_URL } from '../utils/api'
 
 function themeIcon(isLight) {
   return isLight
@@ -281,13 +282,15 @@ export default function ChatPage() {
       }
       
       let res = await fetch(url, { ...options, headers })
+      
       if (res.status === 401 && token) {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
-        const refreshRes = await fetch(`${apiBaseUrl}/auth/refresh`, {
+        // Cek apakah refresh endpoint mengembalikan JSON sebelum parse
+        const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         })
-        if (refreshRes.ok) {
+        const refreshContentType = refreshRes.headers.get('content-type') || ''
+        if (refreshRes.ok && refreshContentType.includes('application/json')) {
           const data = await refreshRes.json()
           localStorage.setItem('bawor_token', data.access_token)
           headers['Authorization'] = `Bearer ${data.access_token}`
@@ -387,11 +390,9 @@ export default function ChatPage() {
       showTyping()
       const requestController = new AbortController()
       activeRequestController = requestController
+      const headers = { 'Content-Type': 'application/json' }
       try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
-        const headers = { 'Content-Type': 'application/json' }
-        
-        const response = await fetchWithRefresh(`${apiBaseUrl}/chat`, {
+        const response = await fetchWithRefresh(`${API_BASE_URL}/chat`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ message: text, session_id: sessionStorage.getItem('sessionId') }),
@@ -399,6 +400,11 @@ export default function ChatPage() {
         })
         if (response.status === 401) return
         if (!response.ok) throw new Error(`Chat API returned ${response.status}`)
+        // Pastikan JSON sebelum parse
+        const contentType = response.headers.get('content-type') || ''
+        if (!contentType.includes('application/json')) {
+          throw new Error('Server sedang dalam proses pemanasan. Silakan coba beberapa saat lagi.')
+        }
         const data = await response.json()
         if (data.session_id) sessionStorage.setItem('sessionId', data.session_id)
         removeTyping()
@@ -656,12 +662,12 @@ export default function ChatPage() {
     
     const loadHistory = async () => {
       try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
         const sessionId = sessionStorage.getItem('sessionId')
-        
-        const response = await fetchWithRefresh(`${apiBaseUrl}/chat/history?session_id=${sessionId}`)
+        const response = await fetchWithRefresh(`${API_BASE_URL}/chat/history?session_id=${sessionId}`)
         if (response.status === 401) return
         if (!response.ok) return
+        const contentType = response.headers.get('content-type') || ''
+        if (!contentType.includes('application/json')) return
         const history = await response.json()
         if (history && history.length > 0) {
           messages.current = []
@@ -678,12 +684,13 @@ export default function ChatPage() {
     
     const loadSessions = async () => {
       try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
         const token = localStorage.getItem('bawor_token')
         if (!token) return
         
-        const response = await fetchWithRefresh(`${apiBaseUrl}/chat/sessions`)
+        const response = await fetchWithRefresh(`${API_BASE_URL}/chat/sessions`)
         if (!response.ok) return
+        const contentType = response.headers.get('content-type') || ''
+        if (!contentType.includes('application/json')) return
         const sessions = await response.json()
         
         const container = query('#chatHistoryList')

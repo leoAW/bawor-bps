@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import LoginView from '../views/LoginView'
 import '../styles/login.css'
 import { setDocumentScroll } from '../utils/pageScroll'
+import { API_BASE_URL, apiFetch, pingBackend, getErrorMessage } from '../utils/api'
 
-const DB_KEY = 'bawor_users'
 const SESSION_KEY = 'bawor_user'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -36,6 +36,9 @@ export default function LoginPage() {
   useEffect(() => {
     document.title = 'BAWOR'
     setDocumentScroll('page')
+
+    // Bangunkan HF Space sejak dini agar tidak cold-start saat login
+    pingBackend()
 
     const query = (selector) => root.current?.querySelector(selector)
     const later = (callback, delay) => {
@@ -123,16 +126,14 @@ export default function LoginPage() {
       }
       setLoading('login', true)
       try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
-        const response = await fetch(`${apiBaseUrl}/auth/login`, {
+        const { response, data } = await apiFetch(`${API_BASE_URL}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Gunakan email sebagai username sesuai ekspektasi backend jika backend diubah, atau kirim username
           body: JSON.stringify({ username: email, password: password })
         })
-        const data = await response.json()
-        if (!response.ok) throw new Error(data.detail || 'Login gagal.')
-        
+        if (!response.ok) {
+          throw new Error(getErrorMessage(response.status, data, 'Login gagal.'))
+        }
         localStorage.setItem('bawor_token', data.access_token)
         localStorage.setItem(SESSION_KEY, JSON.stringify({ name: email.split('@')[0], email: email, loggedAt: new Date().toISOString() }))
         showAlert('login-alert', 'success', 'Berhasil masuk! Mengarahkan ke BAWOR...')
@@ -175,22 +176,19 @@ export default function LoginPage() {
       query('#reg-pw2').classList.remove('error')
       setLoading('reg', true)
       try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
-        const response = await fetch(`${apiBaseUrl}/auth/register`, {
+        const { response, data } = await apiFetch(`${API_BASE_URL}/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: email, email: email, password: password })
         })
-        const data = await response.json()
         if (!response.ok) {
-          if (data.detail && data.detail.includes('digunakan')) {
+          if (data?.detail && String(data.detail).includes('digunakan')) {
             showAlert('register-alert', 'error', 'Email sudah terdaftar. <button class="alert-link" data-tab="masuk">Masuk di sini</button>')
           } else {
-            throw new Error(data.detail || 'Pendaftaran gagal.')
+            throw new Error(getErrorMessage(response.status, data, 'Pendaftaran gagal.'))
           }
           return
         }
-        
         localStorage.setItem(SESSION_KEY, JSON.stringify({ name: name, email: email, loggedAt: new Date().toISOString() }))
         showAlert('register-alert', 'success', `Akun berhasil dibuat! Silakan masuk kembali dengan email Anda.`)
         later(() => switchTab('masuk'), 1500)
