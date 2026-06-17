@@ -1,0 +1,197 @@
+
+    /* ── Global ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0B1F3A;
+      color: #F5F0E8;
+      overflow-x: hidden;
+    }
+
+    /* ── Mesh gradient hero ── */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(14,124,123,0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(232,169,35,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 80% at 60% 90%, rgba(26,175,168,0.25) 0%, transparent 55%),
+        #0B1F3A;
+    }
+
+    /* ── Noise grain overlay ── */
+    .grain::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .5;
+    }
+
+    /* ── Glassmorphism card ── */
+    .glass {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .glass-dark {
+      background: rgba(11,31,58,0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(26,175,168,0.18);
+    }
+
+    /* ── Navigation ── */
+    .nav-link {
+      position: relative;
+      font-size: .875rem;
+      font-weight: 500;
+      color: rgba(245,240,232,0.7);
+      transition: color .25s;
+      padding-bottom: 2px;
+    }
+    .nav-link::after {
+      content:'';
+      position: absolute;
+      left: 0; bottom: -2px;
+      width: 0; height: 2px;
+      background: #1AAFA8;
+      border-radius: 2px;
+      transition: width .3s ease;
+    }
+    .nav-link:hover { color: #F5F0E8; }
+    .nav-link:hover::after { width: 100%; }
+
+    /* ── Stat cards ── */
+    .stat-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(26,175,168,0.15);
+      border-radius: 16px;
+      transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(26,175,168,0.45);
+      box-shadow: 0 20px 40px rgba(14,124,123,0.2);
+    }
+
+    /* ── Chat bubble demo ── */
+    .chat-bubble-user {
+      background: linear-gradient(135deg, #0E7C7B, #1AAFA8);
+      border-radius: 18px 18px 4px 18px;
+    }
+    .chat-bubble-bot {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(26,175,168,0.2);
+      border-radius: 18px 18px 18px 4px;
+    }
+
+    /* ── Feature icon ring ── */
+    .icon-ring {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, rgba(14,124,123,.35), rgba(26,175,168,.15));
+      border: 1px solid rgba(26,175,168,.3);
+      flex-shrink: 0;
+    }
+
+    /* ── CTA primary ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: linear-gradient(135deg, #0E7C7B, #1AAFA8);
+      color: #fff;
+      font-weight: 600;
+      font-size: .925rem;
+      padding: .75rem 1.75rem;
+      border-radius: 12px;
+      transition: transform .2s, box-shadow .2s, filter .2s;
+      box-shadow: 0 6px 24px rgba(14,124,123,0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(14,124,123,0.5);
+      filter: brightness(1.1);
+    }
+
+    /* ── CTA ghost ── */
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: .5rem;
+      border: 1.5px solid rgba(26,175,168,0.5);
+      color: #1AAFA8;
+      font-weight: 600;
+      font-size: .925rem;
+      padding: .75rem 1.75rem;
+      border-radius: 12px;
+      transition: background .2s, border-color .2s, color .2s, transform .2s;
+    }
+    .btn-ghost:hover {
+      background: rgba(26,175,168,.1);
+      border-color: #1AAFA8;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* ── Typing animation ── */
+    .typing-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #1AAFA8;
+      animation: typing .9s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: .15s; }
+    .typing-dot:nth-child(3) { animation-delay: .3s; }
+    @keyframes typing {
+      0%,80%,100% { transform: translateY(0); opacity:.4; }
+      40%          { transform: translateY(-7px); opacity:1; }
+    }
+
+    /* ── Stagger delays ── */
+    .delay-100 { animation-delay: .1s; }
+    .delay-200 { animation-delay: .2s; }
+    .delay-300 { animation-delay: .3s; }
+    .delay-400 { animation-delay: .4s; }
+    .delay-500 { animation-delay: .5s; }
+    .delay-600 { animation-delay: .6s; }
+
+    /* ── Gold accent text ── */
+    .text-gold { color: #E8A923; }
+    .text-teal  { color: #1AAFA8; }
+
+    /* ── Divider line ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(26,175,168,.35), transparent);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0B1F3A; }
+    ::-webkit-scrollbar-thumb { background: #0E7C7B; border-radius: 3px; }
+
+    /* ══════════════════════════════════════════════
+       THEME TOGGLE BUTTON
+    ══════════════════════════════════════════════ */
+    .theme-toggle-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(26,175,168,0.3);
+      border-radius: 10px;
+      padding: 7px 12px;
+      color: rgba(245,240,232,0.75);
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .theme-toggle-btn:hover {
+      background: rgba(26,175,168,0.12);
+      border-color: rgba(26,175,168,0.55);
+      color: #F5F0E8;
+      transform: translateY(-1px);
+    }
+
+    /* Light mode dikelola oleh bawor-theme.css */
+  
