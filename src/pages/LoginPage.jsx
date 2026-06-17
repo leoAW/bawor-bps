@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import LoginView from '../views/LoginView'
 import '../styles/login.css'
 import { setDocumentScroll } from '../utils/pageScroll'
-import { API_BASE_URL, apiFetch, pingBackend, getErrorMessage } from '../utils/api'
+import { API_BASE_URL, apiFetch, getErrorMessage } from '../utils/api'
 
 const SESSION_KEY = 'bawor_user'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -36,9 +36,6 @@ export default function LoginPage() {
   useEffect(() => {
     document.title = 'BAWOR'
     setDocumentScroll('page')
-
-    // Bangunkan HF Space sejak dini agar tidak cold-start saat login
-    pingBackend()
 
     const query = (selector) => root.current?.querySelector(selector)
     const later = (callback, delay) => {

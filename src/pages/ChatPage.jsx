@@ -403,7 +403,7 @@ export default function ChatPage() {
         // Pastikan JSON sebelum parse
         const contentType = response.headers.get('content-type') || ''
         if (!contentType.includes('application/json')) {
-          throw new Error('Server sedang dalam proses pemanasan. Silakan coba beberapa saat lagi.')
+          throw new Error('Terjadi kesalahan pada server (response bukan JSON).')
         }
         const data = await response.json()
         if (data.session_id) sessionStorage.setItem('sessionId', data.session_id)
@@ -551,9 +551,8 @@ export default function ChatPage() {
           title: 'Hapus percakapan ini?',
           type: 'confirm',
           onConfirm: () => {
-            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
             const token = localStorage.getItem('bawor_token')
-            fetch(`${apiBaseUrl}/session/${sid}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }})
+            fetch(`${API_BASE_URL}/chat/session/${sid}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }})
               .then(() => {
                 if (sid === sessionStorage.getItem('sessionId')) resetChat()
                 loadSessions()
@@ -575,9 +574,8 @@ export default function ChatPage() {
           title: 'Masukkan nama obrolan baru:',
           type: 'prompt',
           onConfirm: (newTitle) => {
-            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/backend-api'
             const token = localStorage.getItem('bawor_token')
-            fetch(`${apiBaseUrl}/session/${sid}/title`, {
+            fetch(`${API_BASE_URL}/chat/session/${sid}/title`, {
               method: 'PUT',
               headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({ title: newTitle })
